@@ -1,0 +1,194 @@
+<div class="client-detail-container">
+  <div class="header-container">
+    <div class="breadcrumb">
+      <a routerLink="/clients">Clients</a> / Détails
+    </div>
+    
+    <div class="actions" *ngIf="client">
+      <button mat-raised-button color="primary" (click)="createReservation()">
+        <mat-icon>shopping_cart</mat-icon> Nouvelle réservation
+      </button>
+      <button mat-raised-button color="accent" [routerLink]="['/clients', client.id, 'edit']">
+        <mat-icon>edit</mat-icon> Modifier
+      </button>
+      <button mat-raised-button color="warn" (click)="deleteClient()">
+        <mat-icon>delete</mat-icon> Supprimer
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Chargement du client...</p>
+  </div>
+
+  <div *ngIf="error" class="error-container">
+    <mat-icon color="warn">error</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-button color="primary" (click)="loadClient()">Réessayer</button>
+  </div>
+
+  <div *ngIf="!loading && !error && client" class="client-content">
+    <mat-card class="client-info-card">
+      <mat-card-header>
+        <div mat-card-avatar class="client-avatar">
+          <mat-icon>person</mat-icon>
+        </div>
+        <mat-card-title>{{ client.prenom }} {{ client.nom }}</mat-card-title>
+        <mat-card-subtitle>Client #{{ client.id }}</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="client-details">
+          <div class="detail-row">
+            <span class="detail-label">Email:</span>
+            <span class="detail-value">{{ client.email }}</span>
+          </div>
+          
+          <div class="detail-row">
+            <span class="detail-label">Téléphone:</span>
+            <span class="detail-value">{{ client.telephone || '-' }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="client-stats-card">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Statistiques client</mat-card-title>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div *ngIf="statsLoading" class="loading-content">
+            <mat-spinner diameter="30"></mat-spinner>
+            <p>Chargement des statistiques...</p>
+          </div>
+          
+          <div *ngIf="!statsLoading && statistiques" class="stats-content">
+            <div class="stats-summary">
+              <div class="stat-item">
+                <div class="stat-value">{{ statistiques.nombre_reservations }}</div>
+                <div class="stat-label">Réservations</div>
+              </div>
+              
+              <div class="stat-item">
+                <div class="stat-value">{{ statistiques.montant_total_achats | currency:'EUR' }}</div>
+                <div class="stat-label">Total des achats</div>
+              </div>
+              
+              <div class="stat-item">
+                <div class="stat-value">{{ statistiques.panier_moyen | currency:'EUR' }}</div>
+                <div class="stat-label">Panier moyen</div>
+              </div>
+            </div>
+            
+            <mat-divider></mat-divider>
+            
+            <div *ngIf="statistiques.derniere_reservation" class="last-reservation">
+              <div class="section-label">Dernière réservation:</div>
+              <div class="last-reservation-date">{{ statistiques.derniere_reservation | date:'dd/MM/yyyy HH:mm' }}</div>
+            </div>
+            
+            <div *ngIf="statistiques.categories_frequentes" class="favorite-categories">
+              <div class="section-label">Catégories fréquentées:</div>
+              <div class="categories-list">
+                <mat-chip-listbox>
+                  <mat-chip *ngFor="let categorie of statistiques.categories_frequentes.split(',')">
+                    {{ categorie.trim() }}
+                  </mat-chip>
+                </mat-chip-listbox>
+              </div>
+            </div>
+            
+            <mat-divider></mat-divider>
+            
+            <div *ngIf="statistiques.billets_par_type" class="ticket-types">
+              <div class="section-label">Types de billets achetés:</div>
+              <div class="ticket-types-chart">
+                <div *ngFor="let type of getTicketTypes()" class="ticket-type-item">
+                  <div class="ticket-type-name">{{ type }}</div>
+                  <div class="ticket-type-progress">
+                    <mat-progress-bar mode="determinate" [value]="getTicketTypePercentage(type)"></mat-progress-bar>
+                  </div>
+                  <div class="ticket-type-count">{{ statistiques.billets_par_type[type] }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div *ngIf="!statsLoading && !statistiques" class="no-stats">
+            <mat-icon>query_stats</mat-icon>
+            <p>Aucune statistique disponible pour ce client</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="reservations-section">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Réservations du client</mat-card-title>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div *ngIf="reservationsLoading" class="loading-content">
+            <mat-spinner diameter="30"></mat-spinner>
+            <p>Chargement des réservations...</p>
+          </div>
+          
+          <div *ngIf="!reservationsLoading && reservations.length > 0" class="reservations-list">
+            <table mat-table [dataSource]="reservations">
+              <!-- ID Column -->
+              <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef>ID</th>
+                <td mat-cell *matCellDef="let reservation">{{ reservation.id }}</td>
+              </ng-container>
+              
+              <!-- Date Column -->
+              <ng-container matColumnDef="date_reservation">
+                <th mat-header-cell *matHeaderCellDef>Date</th>
+                <td mat-cell *matCellDef="let reservation">{{ reservation.date_reservation | date:'dd/MM/yyyy HH:mm' }}</td>
+              </ng-container>
+              
+              <!-- Statut Column -->
+              <ng-container matColumnDef="statut_paiement">
+                <th mat-header-cell *matHeaderCellDef>Statut</th>
+                <td mat-cell *matCellDef="let reservation">
+                  <app-status-chip [status]="reservation.statut_paiement" type="reservation"></app-status-chip>
+                </td>
+              </ng-container>
+              
+              <!-- Montant Column -->
+              <ng-container matColumnDef="montant_total">
+                <th mat-header-cell *matHeaderCellDef>Montant</th>
+                <td mat-cell *matCellDef="let reservation">{{ reservation.montant_total | currency:'EUR' }}</td>
+              </ng-container>
+              
+              <!-- Actions Column -->
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                <td mat-cell *matCellDef="let reservation">
+                  <button mat-icon-button [routerLink]="['/reservations', reservation.id]" matTooltip="Détails">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+              
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          </div>
+          
+          <div *ngIf="!reservationsLoading && reservations.length === 0" class="no-reservations">
+            <mat-icon>shopping_cart_off</mat-icon>
+            <p>Aucune réservation pour ce client</p>
+            <button mat-raised-button color="primary" (click)="createReservation()">
+              Créer une réservation
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

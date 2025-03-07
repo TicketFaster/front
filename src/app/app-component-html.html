@@ -1,0 +1,91 @@
+<div class="app-container" [class.is-mobile]="isSidenavOpen">
+  <mat-toolbar class="app-toolbar" color="primary">
+    <button mat-icon-button (click)="toggleSidenav()">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <h1 class="app-name">{{ getPageTitle() }}</h1>
+    <span class="toolbar-spacer"></span>
+    <button mat-icon-button [matMenuTriggerFor]="userMenu" *ngIf="isAuthenticated">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>exit_to_app</mat-icon>
+        <span>Déconnexion</span>
+      </button>
+    </mat-menu>
+  </mat-toolbar>
+
+  <mat-sidenav-container class="sidenav-container">
+    <mat-sidenav
+      #sidenav
+      [mode]="'side'"
+      [opened]="isSidenavOpen"
+      [fixedInViewport]="true"
+      [fixedTopGap]="64"
+      class="app-sidenav">
+      
+      <div class="sidenav-header">
+        <img src="assets/logo.png" alt="Logo Billetterie" class="logo">
+        <h2>Billetterie</h2>
+      </div>
+      
+      <mat-nav-list>
+        <a mat-list-item routerLink="/dashboard" routerLinkActive="active">
+          <mat-icon>dashboard</mat-icon>
+          <span>Tableau de bord</span>
+        </a>
+        
+        <mat-divider></mat-divider>
+        
+        <h3 mat-subheader>Programmation</h3>
+        <a mat-list-item routerLink="/evenements" routerLinkActive="active">
+          <mat-icon>event</mat-icon>
+          <span>Événements</span>
+        </a>
+        <a mat-list-item routerLink="/salles" routerLinkActive="active">
+          <mat-icon>location_on</mat-icon>
+          <span>Salles</span>
+        </a>
+        <a mat-list-item routerLink="/seances" routerLinkActive="active">
+          <mat-icon>schedule</mat-icon>
+          <span>Séances</span>
+        </a>
+        
+        <mat-divider></mat-divider>
+        
+        <h3 mat-subheader>Ventes</h3>
+        <a mat-list-item routerLink="/clients" routerLinkActive="active">
+          <mat-icon>people</mat-icon>
+          <span>Clients</span>
+        </a>
+        <a mat-list-item routerLink="/reservations" routerLinkActive="active">
+          <mat-icon>shopping_cart</mat-icon>
+          <span>Réservations</span>
+        </a>
+        <a mat-list-item routerLink="/billets" routerLinkActive="active">
+          <mat-icon>confirmation_number</mat-icon>
+          <span>Billets</span>
+        </a>
+        
+        <mat-divider></mat-divider>
+        
+        <h3 mat-subheader>Rapports</h3>
+        <a mat-list-item routerLink="/rapports/ventes" routerLinkActive="active">
+          <mat-icon>bar_chart</mat-icon>
+          <span>Rapports de ventes</span>
+        </a>
+        <a mat-list-item routerLink="/rapports/occupation" routerLinkActive="active">
+          <mat-icon>pie_chart</mat-icon>
+          <span>Taux d'occupation</span>
+        </a>
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content class="sidenav-content">
+      <div class="content-container">
+        <router-outlet></router-outlet>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

@@ -1,0 +1,91 @@
+<div class="evenement-form-container">
+  <div class="header-container">
+    <div class="breadcrumb">
+      <a routerLink="/evenements">Événements</a> / {{ isEditMode ? 'Modifier' : 'Créer' }}
+    </div>
+    
+    <h1>{{ isEditMode ? 'Modifier l\'événement' : 'Créer un nouvel événement' }}</h1>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Chargement de l'événement...</p>
+  </div>
+
+  <div *ngIf="!loading" class="form-container">
+    <mat-card>
+      <mat-card-content>
+        <form [formGroup]="evenementForm" (ngSubmit)="onSubmit()">
+          <div class="form-fields">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Titre de l'événement</mat-label>
+              <input matInput formControlName="titre" placeholder="Entrez le titre">
+              <mat-error *ngIf="evenementForm.get('titre')?.hasError('required')">
+                Le titre est requis
+              </mat-error>
+              <mat-error *ngIf="evenementForm.get('titre')?.hasError('maxlength')">
+                Le titre ne peut pas dépasser 255 caractères
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Description</mat-label>
+              <textarea matInput formControlName="description" placeholder="Entrez une description" rows="4"></textarea>
+            </mat-form-field>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Catégorie</mat-label>
+                <mat-select formControlName="categorie">
+                  <mat-option [value]="">Non définie</mat-option>
+                  <mat-option *ngFor="let categorie of categories" [value]="categorie">
+                    {{ categorie }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Durée (HH:MM)</mat-label>
+                <input matInput formControlName="duree" placeholder="Ex: 02:30">
+                <mat-hint>Format: heures:minutes (ex: 02:30)</mat-hint>
+                <mat-error *ngIf="evenementForm.get('duree')?.hasError('required')">
+                  La durée est requise
+                </mat-error>
+                <mat-error *ngIf="evenementForm.get('duree')?.hasError('pattern')">
+                  Format invalide. Utilisez HH:MM (ex: 02:30)
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Prix standard</mat-label>
+                <input matInput type="number" formControlName="prix_standard" min="0" step="0.01">
+                <span matSuffix>€</span>
+                <mat-error *ngIf="evenementForm.get('prix_standard')?.hasError('required')">
+                  Le prix standard est requis
+                </mat-error>
+                <mat-error *ngIf="evenementForm.get('prix_standard')?.hasError('min')">
+                  Le prix doit être positif
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button mat-button type="button" routerLink="/evenements">Annuler</button>
+            <button 
+              mat-raised-button 
+              color="primary" 
+              type="submit" 
+              [disabled]="evenementForm.invalid || submitting">
+              
+              <mat-icon *ngIf="submitting">
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              <span *ngIf="!submitting">{{ isEditMode ? 'Mettre à jour' : 'Créer' }}</span>
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

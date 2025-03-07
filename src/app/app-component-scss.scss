@@ -1,0 +1,95 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.app-toolbar {
+  position: fixed;
+  z-index: 2;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.sidenav-container {
+  flex: 1;
+  margin-top: 64px; /* Hauteur de la toolbar */
+}
+
+.app-sidenav {
+  width: 250px;
+  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.1);
+}
+
+.sidenav-header {
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f5f5f5;
+
+  .logo {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 12px;
+  }
+
+  h2 {
+    margin: 0;
+    color: #3f51b5;
+    font-weight: 400;
+  }
+}
+
+mat-nav-list {
+  padding-top: 0;
+  
+  a {
+    height: 48px;
+    
+    &.active {
+      background-color: rgba(63, 81, 181, 0.1);
+      color: #3f51b5;
+      border-left: 4px solid #3f51b5;
+    }
+    
+    mat-icon {
+      margin-right: 16px;
+    }
+  }
+  
+  h3 {
+    color: #666;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 16px;
+  }
+}
+
+.content-container {
+  padding: 20px;
+  box-sizing: border-box;
+  min-height: calc(100vh - 64px);
+}
+
+/* Media Queries pour la version mobile */
+@media (max-width: 767px) {
+  .sidenav-container {
+    margin-top: 56px; /* Hauteur de la toolbar en mobile */
+  }
+
+  .app-sidenav {
+    width: 100%;
+    max-width: 280px;
+  }
+  
+  .content-container {
+    padding: 16px;
+  }
+}

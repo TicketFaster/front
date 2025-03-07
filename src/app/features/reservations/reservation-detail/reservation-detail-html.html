@@ -1,0 +1,178 @@
+<div class="reservation-detail-container">
+  <div class="header-container">
+    <div class="breadcrumb">
+      <a routerLink="/reservations">Réservations</a> / Détails
+    </div>
+    
+    <div class="actions" *ngIf="reservation">
+      <button mat-raised-button color="primary" [disabled]="processing" (click)="downloadReservationPDF()">
+        <mat-icon>picture_as_pdf</mat-icon> Télécharger PDF
+      </button>
+      <button mat-raised-button color="accent" [disabled]="processing" (click)="sendReservationByEmail()">
+        <mat-icon>email</mat-icon> Envoyer par email
+      </button>
+      <button 
+        mat-button 
+        [matMenuTriggerFor]="statusMenu" 
+        [disabled]="processing">
+        <mat-icon>edit</mat-icon> Modifier le statut
+      </button>
+      <mat-menu #statusMenu="matMenu">
+        <button mat-menu-item (click)="updateReservationStatus('PAYE')" [disabled]="reservation.statut_paiement === 'PAYE'">
+          <mat-icon>payment</mat-icon> Payé
+        </button>
+        <button mat-menu-item (click)="updateReservationStatus('EN_ATTENTE')" [disabled]="reservation.statut_paiement === 'EN_ATTENTE'">
+          <mat-icon>hourglass_empty</mat-icon> En attente
+        </button>
+        <button mat-menu-item (click)="updateReservationStatus('ANNULE')" [disabled]="reservation.statut_paiement === 'ANNULE'">
+          <mat-icon>cancel</mat-icon> Annulé
+        </button>
+        <button mat-menu-item (click)="updateReservationStatus('REMBOURSE')" [disabled]="reservation.statut_paiement === 'REMBOURSE'">
+          <mat-icon>money_off</mat-icon> Remboursé
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Chargement de la réservation...</p>
+  </div>
+
+  <div *ngIf="error" class="error-container">
+    <mat-icon color="warn">error</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-button color="primary" (click)="loadReservation()">Réessayer</button>
+  </div>
+
+  <div *ngIf="!loading && !error && reservation" class="reservation-content">
+    <div class="reservation-header">
+      <h1>Réservation #{{ reservation.id }}</h1>
+      <div class="reservation-status">
+        <app-status-chip [status]="reservation.statut_paiement" type="reservation"></app-status-chip>
+      </div>
+    </div>
+
+    <div class="reservation-info-section">
+      <mat-card>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label">Client:</div>
+              <div class="info-value">
+                <a [routerLink]="['/clients', reservation.client?.id]">
+                  {{ reservation.client?.prenom }} {{ reservation.client?.nom }}
+                </a>
+              </div>
+            </div>
+            
+            <div class="info-item">
+              <div class="info-label">Date de réservation:</div>
+              <div class="info-value">{{ reservation.date_reservation | date:'dd/MM/yyyy HH:mm' }}</div>
+            </div>
+            
+            <div class="info-item">
+              <div class="info-label">Statut:</div>
+              <div class="info-value">
+                <app-status-chip [status]="reservation.statut_paiement" type="reservation"></app-status-chip>
+              </div>
+            </div>
+            
+            <div class="info-item">
+              <div class="info-label">Montant total:</div>
+              <div class="info-value montant">{{ reservation.montant_total | currency:'EUR' }}</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="billets-section">
+      <h2>Billets</h2>
+      
+      <div *ngIf="billetsLoading" class="loading-container">
+        <mat-spinner diameter="30"></mat-spinner>
+        <p>Chargement des billets...</p>
+      </div>
+      
+      <mat-card *ngIf="!billetsLoading && billets.length > 0">
+        <mat-card-content>
+          <table mat-table [dataSource]="billets">
+            <!-- ID Column -->
+            <ng-container matColumnDef="id">
+              <th mat-header-cell *matHeaderCellDef>ID</th>
+              <td mat-cell *matCellDef="let billet">{{ billet.id }}</td>
+            </ng-container>
+            
+            <!-- Événement Column -->
+            <ng-container matColumnDef="evenement">
+              <th mat-header-cell *matHeaderCellDef>Événement</th>
+              <td mat-cell *matCellDef="let billet">{{ billet.seance?.evenement?.titre }}</td>
+            </ng-container>
+            
+            <!-- Séance Column -->
+            <ng-container matColumnDef="seance">
+              <th mat-header-cell *matHeaderCellDef>Séance</th>
+              <td mat-cell *matCellDef="let billet">{{ billet.seance?.date_heure | date:'dd/MM/yyyy HH:mm' }}</td>
+            </ng-container>
+            
+            <!-- Salle Column -->
+            <ng-container matColumnDef="salle">
+              <th mat-header-cell *matHeaderCellDef>Salle</th>
+              <td mat-cell *matCellDef="let billet">{{ billet.seance?.salle?.nom }}</td>
+            </ng-container>
+            
+            <!-- Type de tarif Column -->
+            <ng-container matColumnDef="type_tarif">
+              <th mat-header-cell *matHeaderCellDef>Type de tarif</th>
+              <td mat-cell *matCellDef="let billet">{{ billet.type_tarif }}</td>
+            </ng-container>
+            
+            <!-- Prix Column -->
+            <ng-container matColumnDef="prix_final">
+              <th mat-header-cell *matHeaderCellDef>Prix</th>
+              <td mat-cell *matCellDef="let billet">{{ billet.prix_final | currency:'EUR' }}</td>
+            </ng-container>
+            
+            <!-- Statut Column -->
+            <ng-container matColumnDef="statut">
+              <th mat-header-cell *matHeaderCellDef>Statut</th>
+              <td mat-cell *matCellDef="let billet">
+                <app-status-chip [status]="billet.statut" type="billet"></app-status-chip>
+              </td>
+            </ng-container>
+            
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let billet">
+                <button mat-icon-button [routerLink]="['/billets', billet.id]" matTooltip="Détails">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button mat-icon-button (click)="downloadBilletPDF(billet.id)" matTooltip="Télécharger PDF">
+                  <mat-icon>download</mat-icon>
+                </button>
+                <button 
+                  mat-icon-button 
+                  color="warn" 
+                  (click)="cancelBillet(billet)" 
+                  matTooltip="Annuler"
+                  *ngIf="billet.statut === 'VALIDE'">
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+            
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+        </mat-card-content>
+      </mat-card>
+      
+      <div *ngIf="!billetsLoading && billets.length === 0" class="empty-billets">
+        <mat-icon>confirmation_number</mat-icon>
+        <p>Aucun billet pour cette réservation</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,125 @@
+<div class="reservation-form-container">
+  <h1>Nouvelle Réservation</h1>
+
+  <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()">
+    <div class="form-section">
+      <h2>Informations Client</h2>
+      
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Client</mat-label>
+        <input type="text" matInput formControlName="client" [matAutocomplete]="auto">
+        <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayClient" (optionSelected)="onClientSelected($event)">
+          <mat-option *ngFor="let client of filteredClients | async" [value]="client">
+            {{client.nom}} {{client.prenom}} ({{client.email}})
+          </mat-option>
+        </mat-autocomplete>
+        <mat-error *ngIf="reservationForm.get('client')?.hasError('required')">
+          Veuillez sélectionner un client
+        </mat-error>
+      </mat-form-field>
+      
+      <input type="hidden" formControlName="client_id">
+    </div>
+
+    <div class="form-section">
+      <h2>Événement</h2>
+      
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Événement</mat-label>
+        <mat-select formControlName="evenement_id">
+          <mat-option *ngFor="let evenement of evenements" [value]="evenement.id">
+            {{evenement.titre}} - {{evenement.prix_standard | currency:'EUR'}}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="reservationForm.get('evenement_id')?.hasError('required')">
+          Veuillez sélectionner un événement
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-section">
+      <h2>Billets</h2>
+      
+      <div formArrayName="billets">
+        <div *ngFor="let billet of billets.controls; let i = index" [formGroupName]="i" class="billet-form-row">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Billet #{{i + 1}}</mat-card-title>
+              <button mat-icon-button type="button" *ngIf="i > 0" (click)="removeBillet(i)" class="remove-billet-btn">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <div class="billet-form-content">
+                <mat-form-field appearance="fill">
+                  <mat-label>Séance</mat-label>
+                  <mat-select formControlName="id_seance" (selectionChange)="onSeanceChange(i)">
+                    <mat-option *ngFor="let seance of filteredSeances" [value]="seance.id">
+                      {{seance.date_heure | date:'dd/MM/yyyy HH:mm'}} - {{seance.salle?.nom}} ({{seance.places_disponibles}} places)
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="billets.at(i).get('id_seance')?.hasError('required')">
+                    Veuillez sélectionner une séance
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="fill">
+                  <mat-label>Type de tarif</mat-label>
+                  <mat-select formControlName="type_tarif" (selectionChange)="onTypeTarifChange(i)">
+                    <mat-option *ngFor="let type of typeTarifs" [value]="type">
+                      {{type}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="fill">
+                  <mat-label>Prix standard</mat-label>
+                  <input matInput formControlName="prix_standard" type="number" readonly>
+                  <span matSuffix>€</span>
+                </mat-form-field>
+
+                <mat-form-field appearance="fill">
+                  <mat-label>Prix final</mat-label>
+                  <input matInput formControlName="prix_final" type="number" readonly>
+                  <span matSuffix>€</span>
+                </mat-form-field>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+      
+      <div class="button-row">
+        <button mat-raised-button type="button" color="primary" (click)="addBillet()">
+          <mat-icon>add</mat-icon> Ajouter un billet
+        </button>
+      </div>
+    </div>
+
+    <div class="form-summary">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Récapitulatif</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="summary-row">
+            <span class="summary-label">Nombre de billets:</span>
+            <span class="summary-value">{{billets.length}}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Montant total:</span>
+            <span class="summary-value">{{montantTotal | currency:'EUR'}}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="form-actions">
+      <button mat-raised-button type="button" routerLink="/reservations">Annuler</button>
+      <button mat-raised-button type="submit" color="accent" [disabled]="reservationForm.invalid">
+        Confirmer la réservation
+      </button>
+    </div>
+  </form>
+</div>

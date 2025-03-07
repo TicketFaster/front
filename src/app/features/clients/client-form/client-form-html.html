@@ -1,0 +1,90 @@
+<div class="client-form-container">
+  <div class="header-container">
+    <div class="breadcrumb">
+      <a routerLink="/clients">Clients</a> / {{ isEditMode ? 'Modifier' : 'Créer' }}
+    </div>
+    
+    <h1>{{ isEditMode ? 'Modifier le client' : 'Créer un nouveau client' }}</h1>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Chargement du client...</p>
+  </div>
+
+  <div *ngIf="!loading" class="form-container">
+    <mat-card>
+      <mat-card-content>
+        <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
+          <div class="form-fields">
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Nom</mat-label>
+                <input matInput formControlName="nom" placeholder="Entrez le nom">
+                <mat-icon matPrefix>account_circle</mat-icon>
+                <mat-error *ngIf="clientForm.get('nom')?.hasError('required')">
+                  Le nom est requis
+                </mat-error>
+                <mat-error *ngIf="clientForm.get('nom')?.hasError('maxlength')">
+                  Le nom ne peut pas dépasser 255 caractères
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Prénom</mat-label>
+                <input matInput formControlName="prenom" placeholder="Entrez le prénom">
+                <mat-icon matPrefix>person</mat-icon>
+                <mat-error *ngIf="clientForm.get('prenom')?.hasError('required')">
+                  Le prénom est requis
+                </mat-error>
+                <mat-error *ngIf="clientForm.get('prenom')?.hasError('maxlength')">
+                  Le prénom ne peut pas dépasser 255 caractères
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" placeholder="Entrez l'email" type="email">
+              <mat-icon matPrefix>email</mat-icon>
+              <mat-error *ngIf="clientForm.get('email')?.hasError('required')">
+                L'email est requis
+              </mat-error>
+              <mat-error *ngIf="clientForm.get('email')?.hasError('email')">
+                L'email n'est pas valide
+              </mat-error>
+              <mat-error *ngIf="clientForm.get('email')?.hasError('maxlength')">
+                L'email ne peut pas dépasser 255 caractères
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Téléphone</mat-label>
+              <input matInput formControlName="telephone" placeholder="Entrez le téléphone">
+              <mat-icon matPrefix>phone</mat-icon>
+              <mat-hint>Format: chiffres uniquement, sans espaces ni caractères spéciaux</mat-hint>
+              <mat-error *ngIf="clientForm.get('telephone')?.hasError('pattern')">
+                Le format du téléphone n'est pas valide (chiffres uniquement)
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-actions">
+            <button mat-button type="button" routerLink="/clients">Annuler</button>
+            <button 
+              mat-raised-button 
+              color="primary" 
+              type="submit" 
+              [disabled]="clientForm.invalid || submitting">
+              
+              <mat-icon *ngIf="submitting">
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              <span *ngIf="!submitting">{{ isEditMode ? 'Mettre à jour' : 'Créer' }}</span>
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

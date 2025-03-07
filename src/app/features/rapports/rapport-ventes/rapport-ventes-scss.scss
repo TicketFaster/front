@@ -1,0 +1,207 @@
+.rapport-ventes-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.header-container {
+  margin-bottom: 24px;
+  
+  h1 {
+    margin-bottom: 8px;
+    color: #3f51b5;
+  }
+  
+  .subtitle {
+    color: #666;
+    margin: 0;
+  }
+}
+
+.filters-container {
+  margin-bottom: 24px;
+}
+
+.date-filters {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  
+  mat-form-field {
+    flex: 1;
+    min-width: 200px;
+  }
+  
+  button {
+    height: 56px;
+  }
+  
+  @media (max-width: 767px) {
+    flex-direction: column;
+    align-items: stretch;
+    
+    button {
+      margin-top: 8px;
+    }
+  }
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+  
+  mat-icon {
+    font-size: 48px;
+    height: 48px;
+    width: 48px;
+    margin-bottom: 16px;
+  }
+  
+  p {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 16px;
+  }
+}
+
+.empty-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0;
+  text-align: center;
+  
+  mat-icon {
+    font-size: 64px;
+    height: 64px;
+    width: 64px;
+    margin-bottom: 16px;
+    color: #ccc;
+  }
+  
+  p {
+    font-size: 18px;
+    color: #666;
+    margin: 8px 0;
+  }
+  
+  .empty-suggestion {
+    font-size: 14px;
+    color: #999;
+  }
+}
+
+.rapport-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.summary-container {
+  .summary-card {
+    background-color: #f5f7ff;
+  }
+  
+  .summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    
+    h2 {
+      margin: 0;
+      color: #3f51b5;
+    }
+  }
+  
+  .summary-items {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 16px;
+    
+    .summary-item {
+      text-align: center;
+      padding: 16px;
+      
+      .summary-value {
+        font-size: 28px;
+        font-weight: 500;
+        color: #3f51b5;
+        margin-bottom: 8px;
+      }
+      
+      .summary-label {
+        font-size: 14px;
+        color: #666;
+      }
+    }
+  }
+}
+
+.charts-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  
+  @media (max-width: 991px) {
+    grid-template-columns: 1fr;
+  }
+  
+  .chart-card {
+    height: 100%;
+    
+    canvas {
+      max-height: 300px;
+    }
+  }
+}
+
+.table-container {
+  .filter-field {
+    margin-bottom: 16px;
+    
+    mat-form-field {
+      width: 100%;
+    }
+  }
+  
+  .table-responsive {
+    overflow-x: auto;
+    margin-bottom: 16px;
+    
+    table {
+      width: 100%;
+    }
+  }
+}
+
+.taux-container {
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  font-weight: 500;
+  min-width: 60px;
+  text-align: center;
+}
+
+.taux-eleve {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.taux-moyen {
+  background-color: #fff8e1;
+  color: #ff8f00;
+}
+
+.taux-faible {
+  background-color: #ffebee;
+  color: #c62828;
+}

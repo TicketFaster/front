@@ -1,0 +1,101 @@
+<div class="billet-detail-container">
+  <div class="header-container">
+    <div class="breadcrumb">
+      <a routerLink="/billets">Billets</a> / Détails
+    </div>
+    
+    <div class="actions" *ngIf="billet">
+      <button mat-raised-button color="primary" [disabled]="!canBeUsed() || processing" (click)="markAsUsed()">
+        <mat-icon>check_circle</mat-icon> Marquer comme utilisé
+      </button>
+      <button mat-raised-button color="accent" [disabled]="processing" (click)="downloadPDF()">
+        <mat-icon>download</mat-icon> Télécharger PDF
+      </button>
+      <button mat-raised-button color="warn" [disabled]="!canBeCancelled() || processing" (click)="cancelBillet()">
+        <mat-icon>cancel</mat-icon> Annuler
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Chargement du billet...</p>
+  </div>
+
+  <div *ngIf="error" class="error-container">
+    <mat-icon color="warn">error</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-button color="primary" (click)="loadBillet()">Réessayer</button>
+  </div>
+
+  <div *ngIf="!loading && !error && billet" class="billet-content">
+    <div class="billet-status">
+      <app-status-chip [status]="billet.statut" type="billet"></app-status-chip>
+    </div>
+
+    <div class="billet-card">
+      <div class="billet-header">
+        <h1>Billet #{{ billet.id }}</h1>
+        <div class="billet-type">
+          <mat-chip>{{ billet.type_tarif }}</mat-chip>
+        </div>
+      </div>
+
+      <div class="code-barres-section">
+        <h2>Code-barres</h2>
+        <div class="code-barres">
+          <img src="https://barcode.tec-it.com/barcode.ashx?data={{billet.code_barre}}&code=Code128&multiplebarcodes=false&translate-esc=true&unit=Fit&dpi=96&imagetype=Png&download=false&eclevel=L" alt="Code-barres">
+          <div class="code-value">{{ billet.code_barre }}</div>
+        </div>
+      </div>
+
+      <div class="billet-details">
+        <mat-card>
+          <mat-card-content>
+            <div class="detail-section">
+              <h3>Informations sur le billet</h3>
+              <div class="detail-row">
+                <span class="detail-label">Statut:</span>
+                <span class="detail-value">
+                  <app-status-chip [status]="billet.statut" type="billet"></app-status-chip>
+                </span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Type de tarif:</span>
+                <span class="detail-value">{{ billet.type_tarif }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Prix:</span>
+                <span class="detail-value">{{ billet.prix_final | currency:'EUR' }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Réservation:</span>
+                <span class="detail-value">
+                  <a [routerLink]="['/reservations', billet.id_reservation]">Réservation #{{ billet.id_reservation }}</a>
+                </span>
+              </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="detail-section" *ngIf="billet.seance">
+              <h3>Informations sur la séance</h3>
+              <div class="detail-row">
+                <span class="detail-label">Événement:</span>
+                <span class="detail-value">{{ billet.seance.evenement?.titre }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Date et heure:</span>
+                <span class="detail-value">{{ billet.seance.date_heure | date:'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Salle:</span>
+                <span class="detail-value">{{ billet.seance.salle?.nom }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</div>

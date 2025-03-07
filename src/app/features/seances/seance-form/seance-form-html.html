@@ -1,0 +1,100 @@
+<div class="seance-form-container">
+  <div class="header-container">
+    <div class="breadcrumb">
+      <a routerLink="/seances">Séances</a> / {{ isEditMode ? 'Modifier' : 'Créer' }}
+    </div>
+    
+    <h1>{{ isEditMode ? 'Modifier la séance' : 'Créer une nouvelle séance' }}</h1>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Chargement de la séance...</p>
+  </div>
+
+  <div *ngIf="!loading" class="form-container">
+    <mat-card>
+      <mat-card-content>
+        <form [formGroup]="seanceForm" (ngSubmit)="onSubmit()">
+          <div class="form-fields">
+            <!-- Événement -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Événement</mat-label>
+              <input type="text" matInput formControlName="evenement" [matAutocomplete]="autoEvenement" placeholder="Sélectionner un événement">
+              <mat-error *ngIf="seanceForm.get('id_evenement')?.hasError('required')">
+                L'événement est requis
+              </mat-error>
+              <mat-icon matPrefix>event</mat-icon>
+              <mat-icon *ngIf="evenementLoading" matSuffix>
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              <mat-autocomplete #autoEvenement="matAutocomplete" [displayWith]="displayEvenement" (optionSelected)="onEvenementSelected($event)">
+                <mat-option *ngFor="let evenement of filteredEvenements | async" [value]="evenement">
+                  {{ evenement.titre }}
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+
+            <!-- Salle -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Salle</mat-label>
+              <input type="text" matInput formControlName="salle" [matAutocomplete]="autoSalle" placeholder="Sélectionner une salle">
+              <mat-error *ngIf="seanceForm.get('salle_id')?.hasError('required')">
+                La salle est requise
+              </mat-error>
+              <mat-icon matPrefix>room</mat-icon>
+              <mat-icon *ngIf="salleLoading" matSuffix>
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              <mat-autocomplete #autoSalle="matAutocomplete" [displayWith]="displaySalle" (optionSelected)="onSalleSelected($event)">
+                <mat-option *ngFor="let salle of filteredSalles | async" [value]="salle">
+                  {{ salle.nom }} ({{ salle.capacite }} places)
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+
+            <div class="form-row">
+              <!-- Date et heure -->
+              <mat-form-field appearance="outline">
+                <mat-label>Date et heure</mat-label>
+                <input matInput [matDatepicker]="picker" formControlName="date_heure">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+                <mat-error *ngIf="seanceForm.get('date_heure')?.hasError('required')">
+                  La date et l'heure sont requises
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Places disponibles -->
+              <mat-form-field appearance="outline">
+                <mat-label>Places disponibles</mat-label>
+                <input matInput type="number" formControlName="places_disponibles" min="0">
+                <mat-hint>Laissez vide pour utiliser la capacité de la salle</mat-hint>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button 
+              mat-button 
+              type="button" 
+              [routerLink]="evenementId ? ['/evenements', evenementId] : ['/seances']">
+              Annuler
+            </button>
+            <button 
+              mat-raised-button 
+              color="primary" 
+              type="submit" 
+              [disabled]="seanceForm.invalid || submitting">
+              
+              <mat-icon *ngIf="submitting">
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              <span *ngIf="!submitting">{{ isEditMode ? 'Mettre à jour' : 'Créer' }}</span>
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
